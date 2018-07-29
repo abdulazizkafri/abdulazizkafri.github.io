@@ -17,14 +17,12 @@
     <body>
         <h1>Fortinit Grabban Sida</h1>
         <h2>Snake Game</h2>
+        <p>Använd <b>w</b>, <b>a</b>, <b>s</b>, <b>d</b> -knapparna för att ändra rörelseriktningen</p>
         <div width="100%" style="margin: 32px"><canvas id="canvas" width="1024px" height="600px"></canvas></div>
         
         <script src="./simple.js">
-            fill("green");
-            rectangle(5, 5, totalWidth-10, totalHeight-10, "black");
-            
-            var player = {x: 100, y: 100, size: 5, xSpeed: 5, ySpeed: 0,};
-            
+            start();
+                        
             function update()
             {
                 rectangle(player.x, player.y, player.size, player.size, "green");
@@ -38,26 +36,62 @@
                 player.xSpeed = 0;
                 }
                 
+                if (keyboard.up)
+                {
+                player.ySpeed = -5;
+                player.xSpeed = 0;
+                }
+
                 if (keyboard.s)
                 {
                 player.ySpeed = 5;
                 player.xSpeed = 0;
                 }
                 
+                if (keyboard.down)
+                {
+                player.ySpeed = 5;
+                player.xSpeed = 0;
+                }
+
                 if(keyboard.a)
                 {  
                 player.ySpeed = 0;
                 player.xSpeed = -5;
                 }  
                 
+                if(keyboard.left)
+                {  
+                player.ySpeed = 0;
+                player.xSpeed = -5;
+                }
+
                 if(keyboard.d)
                 {  
                 player.ySpeed = 0;
                 player.xSpeed = 5;
                 }
+
+                if(keyboard.right)
+                {  
+                player.ySpeed = 0;
+                player.xSpeed = 5;
+                }
+
+
+                if(keyboard.space){
+                    stopUpdate();
+                }
                 
-                if (getPixel(player.x, player.y).green != 0)
-                stopUpdate();
+                if (getPixel(player.x, player.y).green != 0) start();
+
+            }
+
+            function start()
+            {
+                fill("green");
+                    rectangle(5, 5, totalWidth-10, totalHeight-10, "black");            
+                    player = {x: 100, y: 100, size: 5, xSpeed: 5, ySpeed: 0};                    
             }
         </script>
     </body>
