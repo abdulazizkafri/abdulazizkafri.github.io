@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <htm>
     <header>
-        <title>Fortinit Grabban Sida - Snake Game</title>
+        <title>Fortnite Grabbans sida - Snake Game V1</title>
     </header>
 
     <style>
@@ -11,14 +11,29 @@
             background-position: center;
             background-repeat: no-repeat;
             background-size: cover;
-            height: 100%;        
+            background-attachment: fixed;
+            background-repeat:repeat-y;
+            height: 100%;
             }
+
+        .main-container {
+            max-width: 1024px;
+            margin: auto;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 16px;
+        }
     </style>
     <body>
-        <h1>Fortinit Grabban Sida</h1>
-        <h2>Snake Game</h2>
-        <p>Använd <b>w</b>, <b>a</b>, <b>s</b>, <b>d</b> -knapparna för att ändra rörelseriktningen</p>
-        <div width="100%" style="margin: 32px"><canvas id="canvas" width="1024px" height="600px"></canvas></div>
+        <div class="main-container">
+                <h1>Fortnite Grabbans sida</h1>
+                <h2>Snake Game</h2>
+                <p>Använd <b>piltangenterna</b>, eller <b>w</b>, <b>a</b>, <b>s</b>, <b>d</b>, för att ändra rörelseriktning. Tryck på mellanslag för att stoppa spelet</p>
+                <div width="100%" style="margin: 32px;text-align:center;">
+                    <div>
+                        <canvas id="canvas" width="900px" height="600px"></canvas>
+                    </div>
+                </div>           
+        </div>
         
         <script src="./simple.js">
             start();
