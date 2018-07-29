@@ -22,91 +22,136 @@
             font-family: 'Share Tech Mono', monospace;
             font-size: 16px;
         }
+
+        .canvas-container {
+            margin: 32px;
+            text-align:center;
+            width: 100%; 
+        }
     </style>
     <body>
         <div class="main-container">
                 <h1>Fortnite Grabbans sida</h1>
                 <h2>Snake Game</h2>
                 <p>Använd <b>piltangenterna</b>, eller <b>w</b>, <b>a</b>, <b>s</b>, <b>d</b>, för att ändra rörelseriktning. Tryck på <b>mellanslag</b> för att stoppa spelet</p>
-                <div width="100%" style="margin: 32px;text-align:center;">
-                    <div>
-                        <canvas id="canvas" width="900px" height="600px"></canvas>
-                    </div>
+                <div class="canvas-container">
+                    <canvas id="canvas" width="900px" height="600px"></canvas>
                 </div>           
         </div>
         
         <script src="./simple.js">
+            function body_cell(x,y) { return {x: x, y: y}; }
+
+            function snake_body(){
+                return {
+                    x: 100,
+                    y: 100,
+                    
+                    speed_x: 5,
+                    speed_y: 0,
+                    
+                    cell_size: 5,
+
+                    body_cells:[],                    
+                    length_to_grow: 10,
+                    
+                    init: function(x, y) {
+                        this.body_cells = [body_cell(x,y)];
+                        this.length_to_grow = 10;
+                    },
+
+                    grow: function(n) { this.length_to_grow += n; },
+
+                    move: function() {
+                        this.x += this.speed_x;
+                        this.y += this.speed_y;
+
+                        if (getPixel(this.x, this.y).green != 0) start();
+                        else {
+                            rectangle(this.x, this.y, this.cell_size, this.cell_size, "green");
+                            this.body_cells.push(body_cell(this.x,this.y));                            
+                            if (this.length_to_grow > 0) this.length_to_grow--;
+                            else {
+                                old_cell = this.body_cells.shift();
+                                rectangle(old_cell.x, old_cell.y, this.cell_size, this.cell_size, "black");
+                            }
+                        }
+                    }
+                }
+            }
+
             start();
+
+            count = 0;
                         
             function update()
             {
-                rectangle(player.x, player.y, player.size, player.size, "green");
+                if (count > 100){
+                    count = 0;
+                    player.grow(1);
+                } else count++;
                 
-                player.x += player.xSpeed;
-                player.y += player.ySpeed;
+                player.move();
+                
                 
                 if (keyboard.w)
                 {
-                player.ySpeed = -5;
-                player.xSpeed = 0;
+                    player.speed_y = -5;
+                    player.speed_x = 0;
                 }
                 
                 if (keyboard.up)
                 {
-                player.ySpeed = -5;
-                player.xSpeed = 0;
+                    player.speed_y = -5;
+                    player.speed_x = 0;
                 }
 
                 if (keyboard.s)
                 {
-                player.ySpeed = 5;
-                player.xSpeed = 0;
+                    player.speed_y = 5;
+                    player.speed_x = 0;
                 }
                 
                 if (keyboard.down)
                 {
-                player.ySpeed = 5;
-                player.xSpeed = 0;
+                    player.speed_y = 5;
+                    player.speed_x = 0;
                 }
 
                 if(keyboard.a)
                 {  
-                player.ySpeed = 0;
-                player.xSpeed = -5;
+                    player.speed_y = 0;
+                    player.speed_x = -5;
                 }  
                 
                 if(keyboard.left)
                 {  
-                player.ySpeed = 0;
-                player.xSpeed = -5;
+                    player.speed_y = 0;
+                    player.speed_x = -5;
                 }
 
                 if(keyboard.d)
                 {  
-                player.ySpeed = 0;
-                player.xSpeed = 5;
+                    player.speed_y = 0;
+                    player.speed_x = 5;
                 }
 
                 if(keyboard.right)
                 {  
-                player.ySpeed = 0;
-                player.xSpeed = 5;
+                    player.speed_y = 0;
+                    player.speed_x = 5;
                 }
 
-
-                if(keyboard.space){
-                    stopUpdate();
-                }
-                
-                if (getPixel(player.x, player.y).green != 0) start();
-
+                if(keyboard.space) stopUpdate();
             }
 
             function start()
             {
                 fill("green");
-                    rectangle(5, 5, totalWidth-10, totalHeight-10, "black");            
-                    player = {x: 100, y: 100, size: 5, xSpeed: 5, ySpeed: 0};                    
+                rectangle(5, 5, totalWidth-10, totalHeight-10, "black");
+                player = snake_body();
+                player.init();
+                
             }
         </script>
     </body>
