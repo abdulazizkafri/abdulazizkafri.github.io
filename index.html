@@ -13,7 +13,7 @@
     <style>
         body {
             background-image: url("./images/stargate-transparent.png");
-            background-color: #cccccc;
+            background-color: #82b2c5;
             background-position: center;
             background-repeat: no-repeat;
             background-size: cover;
@@ -70,24 +70,33 @@
 
         .scoreboard {
             width: 100%;
-            display: table;
-            font-size: 16px;
+            font-size: 14px;
+            display: flex;
+            flex-wrap: nowrap;
+            justify-content: space-evenly;
         }
 
-        .scoreboard-label {
+        .scoreboard-field {
             display: table-cell;
-            width: 150px;
+            width: auto;
+            display: flex;
+            flex-wrap: nowrap;
+            flex-direction: row;
+        }
+
+        .scoreboard-label {            
+            width: auto;
             text-align: right;
             font-weight: 600;
             padding: 5px;
         }
 
-        .scoreboard-value {
-            display: table-cell;
-            width: 150px;
-            text-align: left;
+        .scoreboard-value {        
+            width: 60px;
+            text-align: center;
             font-weight: 900;
             padding: 5px;
+            background-color: #a6cfdf;
         }
 
     </style>
@@ -108,10 +117,18 @@
                     <canvas id="canvas" width="900px" height="500px"></canvas>
                 </div>
                 <div class="scoreboard">
-                    <div class="scoreboard-label">lives / liv :</div>
-                    <div class="scoreboard-value" id="lives"></div>
-                    <div class="scoreboard-label">score / poäng : </div>
-                    <div class="scoreboard-value" id="score"></div>
+                    <div class="scoreboard-field">
+                        <div class="scoreboard-label">lives / liv: </div>
+                        <div class="scoreboard-value" id="lives"></div>        
+                    </div>
+                    <div class="scoreboard-field">
+                        <div class="scoreboard-label">score / poäng: </div>
+                        <div class="scoreboard-value" id="score"></div>        
+                    </div>
+                    <div class="scoreboard-field">
+                        <div class="scoreboard-label">highest score / högsta poäng: </div>
+                        <div class="scoreboard-value" id="highest-score"></div>        
+                    </div>
                 </div>
                 <div class="instrctions">
                     <p>Use <b>arrow-keys</b>, or <b>w</b>, <b>a</b>, <b>s</b>, <b>d</b>, to change move direction. Press <b>spacebar</b> to pause the game.</p>
@@ -134,11 +151,16 @@
                 return {
                     scoreField: document.getElementById('score'),
                     livesField: document.getElementById('lives'),                    
+                    highestScoreField: document.getElementById('highest-score'),
+
                     setScore: function (value) { this.scoreField.textContent = value; },
                     setLives: function (value) { this.livesField.textContent = value; },
+                    setHighestScoreField: function (value) { this.highestScoreField.textContent = value; },
+
                     update: function (snake) {
                         this.setScore(snake.score);
                         this.setLives(snake.remainingLives);
+                        this.setHighestScoreField(snake.highestScore);
                     }
                     };
                 };
@@ -179,6 +201,7 @@
                     cellSize: pixelSize,
                     bodyCells: [ BodyCell( startPositionX, startPositionY) ],
                     lengthToGrow: startLength,
+                    highestScore: 0,
                     score: 0,
                     starGateCounter: 0,
                     paused: false,
@@ -186,6 +209,7 @@
                     grow: function(n) { 
                         this.lengthToGrow += n; 
                         this.score += 1; 
+                        if (this.highestScore < this.score) this.highestScore = this.score;
                         scoresBoard.update(this);
                     },
 
@@ -240,6 +264,7 @@
                         } else {
                             this.remainingLives = maxLives;
                             this.lengthToGrow = startLength;
+                            if (this.score > this.highestScore) this.highestScore = score;
                             this.score = 0;
                         }
 
