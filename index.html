@@ -108,14 +108,14 @@
                     <canvas id="canvas" width="900px" height="500px"></canvas>
                 </div>
                 <div class="scoreboard">
-                    <div class="scoreboard-label">Lives:</div>
+                    <div class="scoreboard-label">lives / liv :</div>
                     <div class="scoreboard-value" id="lives"></div>
-                    <div class="scoreboard-label">Score:</div>
+                    <div class="scoreboard-label">score / poäng : </div>
                     <div class="scoreboard-value" id="score"></div>
                 </div>
                 <div class="instrctions">
-                    <p>Use <b>arrow-keys</b>, or <b>w</b>, <b>a</b>, <b>s</b>, <b>d</b>, to change move direction. Press <b>spacebar</b> to stop the game.</p>
-                    <p>Använd <b>piltangenterna</b>, eller <b>w</b>, <b>a</b>, <b>s</b>, <b>d</b>, för att ändra rörelseriktning. Tryck på <b>mellanslag</b> för att stoppa spelet.</p>
+                    <p>Use <b>arrow-keys</b>, or <b>w</b>, <b>a</b>, <b>s</b>, <b>d</b>, to change move direction. Press <b>spacebar</b> to pause the game.</p>
+                    <p>Använd <b>piltangenterna</b>, eller <b>w</b>, <b>a</b>, <b>s</b>, <b>d</b>, för att ändra rörelseriktning. Tryck på <b>mellanslag</b> för att pausa spelet.</p>
                 </div>
         </div>
         
@@ -127,6 +127,7 @@
             const startPositionX = 100;
             const startPositionY = 100;
             const startLength = 10;
+            const starGateMargin = 5;
             const starGateAppearanceInterval = 400;
 
             function ScroresBoard() {
@@ -143,11 +144,11 @@
                 };
 
             function StarGate() { 
-                var x1 = ((Math.round(Math.random() * ((canvasWidth / pixelSize) - 4)) + 2) * pixelSize);
-                var y1 = ((Math.round(Math.random() * ((canvasHeight / pixelSize) - 4)) + 2) * pixelSize);
+                var x1 = ((Math.round(Math.random() * ((canvasWidth / pixelSize) - (starGateMargin + starGateMargin))) + starGateMargin) * pixelSize);
+                var y1 = ((Math.round(Math.random() * ((canvasHeight / pixelSize) - (starGateMargin + starGateMargin))) + starGateMargin) * pixelSize);
 
-                var x2 = ((Math.round(Math.random() * ((canvasWidth / pixelSize) - 4)) + 2) * pixelSize);
-                var y2 = ((Math.round(Math.random() * ((canvasHeight / pixelSize) - 4)) + 2) * pixelSize);
+                var x2 = ((Math.round(Math.random() * ((canvasWidth / pixelSize) - (starGateMargin + starGateMargin))) + starGateMargin) * pixelSize);
+                var y2 = ((Math.round(Math.random() * ((canvasHeight / pixelSize) - (starGateMargin + starGateMargin))) + starGateMargin) * pixelSize);
 
                 return {
                     x1: x1, 
@@ -179,6 +180,8 @@
                     bodyCells: [ BodyCell( startPositionX, startPositionY) ],
                     lengthToGrow: startLength,
                     score: 0,
+                    starGateCounter: 0,
+                    paused: false,
                     
                     grow: function(n) { 
                         this.lengthToGrow += n; 
@@ -187,29 +190,38 @@
                     },
 
                     move: function() {
-                        this.x += this.speedX;
-                        this.y += this.speedY;
-
-                        if (this.starGate != null) {
-                            if ((this.x == this.starGate.x1) && (this.y == this.starGate.y1)) {
-                                this.x = this.starGate.x2 + this.speedX;
-                                this.y = this.starGate.y2 + this.speedY;
-                                this.grow(3);
-                            } if ((this.x == this.starGate.x2) && (this.y == this.starGate.y2)) {
-                                this.x = this.starGate.x1 + this.speedX;
-                                this.y = this.starGate.y1 + this.speedY;
-                                this.grow(3);
-                            }
-                        }
-
-                        if (getPixel(this.x, this.y).green != 0) this.dieOnce();
-                        else {
-                            rectangle(this.x, this.y, this.cellSize, this.cellSize, "green");
-                            this.bodyCells.push(BodyCell(this.x,this.y));                            
-                            if (this.lengthToGrow > 0) this.lengthToGrow--;
+                        if (!this.paused)
+                        {
+                            if (this.starGateCounter > 0) this.starGateCounter--;
                             else {
-                                var removedCell = this.bodyCells.shift();
-                                rectangle(removedCell.x, removedCell.y, this.cellSize, this.cellSize, "black");
+                                this.starGateCounter = starGateAppearanceInterval;
+                                this.newStarGate();
+                            }
+
+                            this.x += this.speedX;
+                            this.y += this.speedY;
+
+                            if (this.starGate != null) {
+                                if ((this.x == this.starGate.x1) && (this.y == this.starGate.y1)) {
+                                    this.x = this.starGate.x2 + this.speedX;
+                                    this.y = this.starGate.y2 + this.speedY;
+                                    this.grow(3);
+                                } if ((this.x == this.starGate.x2) && (this.y == this.starGate.y2)) {
+                                    this.x = this.starGate.x1 + this.speedX;
+                                    this.y = this.starGate.y1 + this.speedY;
+                                    this.grow(3);
+                                }
+                            }
+
+                            if (getPixel(this.x, this.y).green != 0) this.dieOnce();
+                            else {
+                                rectangle(this.x, this.y, this.cellSize, this.cellSize, "green");
+                                this.bodyCells.push(BodyCell(this.x,this.y));                            
+                                if (this.lengthToGrow > 0) this.lengthToGrow--;
+                                else {
+                                    var removedCell = this.bodyCells.shift();
+                                    rectangle(removedCell.x, removedCell.y, this.cellSize, this.cellSize, "black");
+                                }
                             }
                         }
                     },
@@ -242,49 +254,45 @@
                     },
 
                     turnUp: function() {
-                        if (this.speedY == 0){
+                        if (!this.paused && this.speedY == 0){
                             this.speedY = -pixelSize;
                             this.speedX = 0;
                         }
                     },
 
                     turnDown: function() {
-                        if (this.speedY == 0){
+                        if (!this.paused && this.speedY == 0){
                             this.speedY = pixelSize;
                             this.speedX = 0;
                         }
                     },
 
                     turnLeft: function() {
-                        if (this.speedX == 0){
+                        if (!this.paused && this.speedX == 0){
                             this.speedY = 0;
                             this.speedX = -pixelSize;
                         }
                     },
 
                     turnRight: function() {
-                        if (this.speedX == 0){
+                        if (!this.paused && this.speedX == 0){
                             this.speedY = 0;
                             this.speedX = pixelSize;
                         }
-                    }
+                    },
+
+                    togglePause: function() {
+                        this.paused = !this.paused;
+                    },
                 }
             }
 
             start();
 
-            function update()
-            {
-                // if (growthCounter > 100){
-                //     growthCounter = 0;
-                //     player.grow(1);
-                // } else growthCounter++;
-                
-                if (starGateCounter > starGateAppearanceInterval){
-                    starGateCounter = 0;
-                    player.newStarGate();                    
-                } else starGateCounter++;
+            var lastKeyWasSpace = false;
 
+            function update()
+            {               
                 player.move();
                 
                 if (keyboard.w) player.turnUp();
@@ -303,14 +311,18 @@
 
                 if(keyboard.right) player.turnRight();
 
-                if(keyboard.space) stopUpdate();
+                if(keyboard.space) {
+                    if (!lastKeyWasSpace){
+                        player.togglePause();
+                        lastKeyWasSpace = true;
+                    }
+                } else lastKeyWasSpace = false;
             }
 
             function start()
             {                
                 scoresBoard = ScroresBoard();
-                player = Snake();
-                starGateCounter = starGateAppearanceInterval * 0.9;
+                player = Snake();                
                 startNewLife();
             }
 
