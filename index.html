@@ -39,23 +39,79 @@
 
         .headers-container {
             text-align:center;
-            width: 100%; 
+            display: table;
+            width: 100%;
+        }
+
+        .headers-container-row {
+            display: table-row;            
+            width: 900px;
+        }
+
+        .header-image-container {
+            width: 30%;
+            display: table-cell;
+            text-align: right;
+            vertical-align: middle;
+            padding: 10px;
+        }
+
+        .header-text-container {           
+            width: 70%;
+            display: table-cell;
+            text-align: left;
+            vertical-align: middle;
+            padding: 10px;
         }
 
         .instrctions {
             font-size: 12px;
         }
+
+        .scoreboard {
+            width: 100%;
+            display: table;
+            font-size: 16px;
+        }
+
+        .scoreboard-label {
+            display: table-cell;
+            width: 150px;
+            text-align: right;
+            font-weight: 600;
+            padding: 5px;
+        }
+
+        .scoreboard-value {
+            display: table-cell;
+            width: 150px;
+            text-align: left;
+            font-weight: 900;
+            padding: 5px;
+        }
+
     </style>
     <body>
-        <div class="main-container">
+        <div class="main-container">            
                 <div class="headers-container">
-                    <h1>Fortnite Grabban page</h1>
-                    <h2>Stargate-Snake Game V1</h2>
-                    <!-- <img src="./stargate-snake-small.png"> -->
-                    <img src="./images/stargate-snake-small.png">
+                    <div class="headers-container-row">
+                        <div class="header-image-container">
+                            <img src="./images/stargate-snake-small.png">
+                        </div>
+                        <div class="header-text-container">
+                            <h1>Fortnite Grabban page</h1>
+                            <h2>Stargate-Snake Game V1</h2>
+                        </div>
+                    </div>
                 </div>
                 <div class="canvas-container">
                     <canvas id="canvas" width="900px" height="500px"></canvas>
+                </div>
+                <div class="scoreboard">
+                    <div class="scoreboard-label">Lives:</div>
+                    <div class="scoreboard-value" id="lives"></div>
+                    <div class="scoreboard-label">Score:</div>
+                    <div class="scoreboard-value" id="score"></div>
                 </div>
                 <div class="instrctions">
                     <p>Use <b>arrow-keys</b>, or <b>w</b>, <b>a</b>, <b>s</b>, <b>d</b>, to change move direction. Press <b>spacebar</b> to stop the game.</p>
@@ -64,9 +120,27 @@
         </div>
         
         <script src="./scripts/simple.js">
-            const pixelSize = 5;            
+            const pixelSize = 5;
+            const maxLives = 10;
             const canvasWidth = 900;
             const canvasHeight = 500;
+            const startPositionX = 100;
+            const startPositionY = 100;
+            const startLength = 10;
+            const starGateAppearanceInterval = 400;
+
+            function ScroresBoard() {
+                return {
+                    scoreField: document.getElementById('score'),
+                    livesField: document.getElementById('lives'),                    
+                    setScore: function (value) { this.scoreField.textContent = value; },
+                    setLives: function (value) { this.livesField.textContent = value; },
+                    update: function (snake) {
+                        this.setScore(snake.score);
+                        this.setLives(snake.remainingLives);
+                    }
+                    };
+                };
 
             function StarGate() { 
                 var x1 = ((Math.round(Math.random() * ((canvasWidth / pixelSize) - 4)) + 2) * pixelSize);
@@ -95,19 +169,23 @@
 
             function Snake(){
                 return {
+                    remainingLives: maxLives,
                     starGate: null,
-                    x: 100,
-                    y: 100,                    
+                    x: startPositionX,
+                    y: startPositionY,
                     speedX: pixelSize,
-                    speedY: 0,                    
+                    speedY: 0,
                     cellSize: pixelSize,
-                    bodyCells:[],                    
-                    lengthToGrow: 10,                    
-                    init: function(x, y) {
-                        this.bodyCells = [BodyCell(x,y)];
-                        this.lengthToGrow = 10;
+                    bodyCells: [ BodyCell( startPositionX, startPositionY) ],
+                    lengthToGrow: startLength,
+                    score: 0,
+                    
+                    grow: function(n) { 
+                        this.lengthToGrow += n; 
+                        this.score += 1; 
+                        scoresBoard.update(this);
                     },
-                    grow: function(n) { this.lengthToGrow += n; },
+
                     move: function() {
                         this.x += this.speedX;
                         this.y += this.speedY;
@@ -124,9 +202,8 @@
                             }
                         }
 
-                        if (getPixel(this.x, this.y).green != 0) start();
+                        if (getPixel(this.x, this.y).green != 0) this.dieOnce();
                         else {
-
                             rectangle(this.x, this.y, this.cellSize, this.cellSize, "green");
                             this.bodyCells.push(BodyCell(this.x,this.y));                            
                             if (this.lengthToGrow > 0) this.lengthToGrow--;
@@ -141,6 +218,27 @@
                         if (this.starGate !== null) this.starGate.remove();
                         this.starGate = StarGate();
                         this.starGate.draw();
+                    },
+
+                    dieOnce: function() {                        
+
+                        if (this.remainingLives > 1) {
+                            this.remainingLives--;
+                            this.lengthToGrow += this.bodyCells.length;
+                        } else {
+                            this.remainingLives = maxLives;
+                            this.lengthToGrow = startLength;
+                            this.score = 0;
+                        }
+
+                        this.x = startPositionX;
+                        this.y = startPositionY;
+                        this.speedX = pixelSize;
+                        this.speedY = 0;                        
+                        this.starGate = null;
+                        this.bodyCells = [BodyCell(this.x,this.y)];
+
+                        startNewLife();
                     },
 
                     turnUp: function() {
@@ -170,16 +268,11 @@
                             this.speedX = pixelSize;
                         }
                     }
-
                 }
             }
 
             start();
 
-            starGateCounter = 0;
-
-            
-                        
             function update()
             {
                 // if (growthCounter > 100){
@@ -187,62 +280,45 @@
                 //     player.grow(1);
                 // } else growthCounter++;
                 
-                if (starGateCounter > 300){
+                if (starGateCounter > starGateAppearanceInterval){
                     starGateCounter = 0;
                     player.newStarGate();                    
                 } else starGateCounter++;
 
                 player.move();
                 
-                if (keyboard.w)
-                {
-                    player.turnUp();
-                }
+                if (keyboard.w) player.turnUp();
                 
-                if (keyboard.up)
-                {
-                    player.turnUp();
-                }
+                if (keyboard.up) player.turnUp();
 
-                if (keyboard.s)
-                {
-                    player.turnDown();
-                }
+                if (keyboard.s) player.turnDown();
                 
-                if (keyboard.down)
-                {
-                    player.turnDown();
-                }
+                if (keyboard.down) player.turnDown();
 
-                if(keyboard.a)
-                {  
-                    player.turnLeft();
-                }  
+                if(keyboard.a) player.turnLeft();
                 
-                if(keyboard.left)
-                {  
-                    player.turnLeft();
-                }
+                if(keyboard.left) player.turnLeft();
 
-                if(keyboard.d)
-                {  
-                    player.turnRight();
-                }
+                if(keyboard.d) player.turnRight();
 
-                if(keyboard.right)
-                {  
-                    player.turnRight();
-                }
+                if(keyboard.right) player.turnRight();
 
                 if(keyboard.space) stopUpdate();
             }
 
             function start()
-            {
+            {                
+                scoresBoard = ScroresBoard();
+                player = Snake();
+                starGateCounter = starGateAppearanceInterval * 0.9;
+                startNewLife();
+            }
+
+            function startNewLife()
+            {                
                 fill("green");
                 rectangle(pixelSize, pixelSize, totalWidth - (pixelSize + pixelSize), totalHeight - (pixelSize + pixelSize), "black");
-                player = Snake();
-                player.init();
+                scoresBoard.update(player);
             }
         </script>
     </body>
