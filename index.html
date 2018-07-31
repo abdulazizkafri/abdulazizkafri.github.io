@@ -13,7 +13,8 @@
     <style>
         body {
             background-image: url("./images/stargate-transparent.png");
-            background-color: #82b2c5;
+            /* background-color: #82b2c5; */
+            background-color: #8e8eae;
             background-position: center;
             background-repeat: no-repeat;
             background-size: cover;
@@ -96,7 +97,7 @@
             text-align: center;
             font-weight: 900;
             padding: 5px;
-            background-color: #a6cfdf;
+            background-color: #a7a7c7;
         }
 
     </style>
@@ -137,6 +138,14 @@
         </div>
         
         <script src="./scripts/simple.js">
+            const bgRed = 0;
+            const bgGreen = 0;
+            const bgBlue = 100;
+            const snakeColor = mixColor(200,200,200);
+            const backgroundColor = mixColor(bgRed,bgGreen,bgBlue);
+            const stargateColor = mixColor(255,64,16);
+            const borderColor = mixColor(96,96,140);
+
             const pixelSize = 5;
             const maxLives = 10;
             const canvasWidth = 900;
@@ -178,12 +187,12 @@
                     x2: x2, 
                     y2: y2,
                     remove: function() {
-                        rectangle(this.x1, this.y1, pixelSize, pixelSize, "black");
-                        rectangle(this.x2, this.y2, pixelSize, pixelSize, "black");
+                        rectangle(this.x1, this.y1, pixelSize, pixelSize, backgroundColor);
+                        rectangle(this.x2, this.y2, pixelSize, pixelSize, backgroundColor);
                     },
                     draw: function() {
-                        rectangle(this.x1, this.y1, pixelSize, pixelSize, "white");
-                        rectangle(this.x2, this.y2, pixelSize, pixelSize, "white");
+                        rectangle(this.x1, this.y1, pixelSize, pixelSize, stargateColor);
+                        rectangle(this.x2, this.y2, pixelSize, pixelSize, stargateColor);
                     }
                     };
                 };
@@ -237,16 +246,17 @@
                                 }
                             }
 
-                            if (getPixel(this.x, this.y).green != 0) this.dieOnce();
-                            else {
-                                rectangle(this.x, this.y, this.cellSize, this.cellSize, "green");
+                            var pixelColor = getPixel(this.x, this.y);
+
+                            if ((pixelColor.red == bgRed) && (pixelColor.green == bgGreen) && (pixelColor.blue == bgBlue)) {
+                                rectangle(this.x, this.y, this.cellSize, this.cellSize, snakeColor);
                                 this.bodyCells.push(BodyCell(this.x,this.y));                            
                                 if (this.lengthToGrow > 0) this.lengthToGrow--;
                                 else {
                                     var removedCell = this.bodyCells.shift();
-                                    rectangle(removedCell.x, removedCell.y, this.cellSize, this.cellSize, "black");
+                                    rectangle(removedCell.x, removedCell.y, this.cellSize, this.cellSize, backgroundColor);
                                 }
-                            }
+                            } else this.dieOnce();
                         }
                     },
 
@@ -353,8 +363,8 @@
 
             function startNewLife()
             {                
-                fill("green");
-                rectangle(pixelSize, pixelSize, totalWidth - (pixelSize + pixelSize), totalHeight - (pixelSize + pixelSize), "black");
+                fill(borderColor);
+                rectangle(pixelSize, pixelSize, totalWidth - (pixelSize + pixelSize), totalHeight - (pixelSize + pixelSize), backgroundColor);
                 scoresBoard.update(player);
             }
         </script>
